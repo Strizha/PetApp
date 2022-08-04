@@ -30,3 +30,6 @@ teamworkUser.xml
 projectFilesBackup*
 *.zip
 *.gzprojectFilesBackup*
+
+.scripts/setup-env-variables.sh
+apm/

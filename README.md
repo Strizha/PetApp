@@ -1,159 +1,113 @@
-# Application - Petstore Java EE 7
+---
+services: app-service, PostgreSQL, MySQL, azure-sql-database
+platforms: java
+author: selvasingh, sadigopu
+---
 
-* *Author* : [Antonio Goncalves](http://www.antoniogoncalves.org)
-* *Level* : Intermediate
-* *Technologies* : Java EE 7 (JPA 2.1, CDI 1.1, Bean Validation 1.1, EJB Lite 3.2, JSF 2.2, JAX-RS 2.0), Java SE 7 (because that's the minimum required by Java EE 7), Twitter Bootstrap (Bootstrap 3.x, JQuery 2.x, PrimeFaces 6.x)
-* *Application Servers* : WildFly 10, WildFly 11
-* *Summary* : A Petstore-like application using Java EE 7
+# Migrate Java EE App to Azure
 
-[Download the code from GitHub](https://github.com/agoncal/agoncal-application-petstore-ee7)
-
-## Purpose of this application
-
-Do you remember the good old Java [Petstore](http://java.sun.com/developer/releases/petstore/) ? It was a sample application created by Sun for its [Java BluePrints](http://www.oracle.com/technetwork/java/javaee/blueprints/index.html) program. The Java Petstore was designed to illustrate how J2EE (and then Java EE) could be used to develop an eCommerce web application. Yes, the point of the Petstore is to sell pets online. The Petstore had a huge momentum and we started to see plenty of Petstore-like applications flourish. The idea was to build an application with a certain technology. Let's face it, the J2EE version was far too complex using plenty of (today outdated) [design patterns](http://java.sun.com/blueprints/corej2eepatterns/). When I wrote my [Java EE 5 book](http://www.eyrolles.com/Informatique/Livre/java-ee5-9782212120387) back in 2006, I decided to write a Petstore-like application but much simpler. But again, it's out-dated today.
-
-What you have here is another Petstore-like application but using [Java EE 7](http://jcp.org/en/jsr/detail?id=342) and all its goodies (CDI, EJB Lite, REST interface). It is based on the Petstore I developed for my [Java EE 5 book](http://www.eyrolles.com/Informatique/Livre/java-ee-5-9782212126587) (sorry, it's written in French). I've updated it based on my [Java EE 6 book](http://www.amazon.com/gp/product/143022889X/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=143022889X&linkCode=as2&tag=antgonblo-20), and now I'm updating it again so it uses some new features of Java EE 7 described on my [Java EE 7 book](http://www.amazon.com/gp/product/143024626X/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=143024626X&linkCode=as2&tag=antgonblo-20). The goals of this sample is to :
-
-* use Java EE 7 and just Java EE 7 : no external framework or dependency (except web frameworks or logging APIs)
-* make it simple : no complex business algorithm, the point is to bring Java EE 7 technologies together to create an eCommerce website
-
-If you want to use a different web interface, external frameworks, add some sexy alternative JVM language... feel free to fork the code. But the goal of this EE 7 Petstore is to remain simple and to stick to Java EE 7.
-
-The only external framework used are [Arquillian](http://arquillian.org/), [Twitter Bootstrap](http://twitter.github.io/bootstrap/) and [PrimeFaces](http://www.primefaces.org/). Arquillian is used for integration testing. Using Maven profile, you can test services, injection, persistence... against different application servers. Twitter Bootstrap and PrimeFaces bring a bit of beauty to the web interface.
-
-## Compile and package
-
-Being Maven centric, you can compile and package it without tests using `mvn clean compile -Dmaven.test.skip=true`, `mvn clean package -Dmaven.test.skip=true` or `mvn clean install -Dmaven.test.skip=true`. Once you have your war file, you can deploy it.
-
-### Test with Arquillian
-
-Launching tests under [WildFly](http://www.wildfly.org/) is straight forward. You only have to launch WidlFly and execute the tests using the Maven profile :
-
-    mvn clean test -Parquillian-wildfly-remote
-
-Or if you prefer the managed mode :
-
-    mvn clean test -Parquillian-wildfly-managed
-
-## Execute the sample
-
-Once deployed go to the following URL and start buying some pets: [http://localhost:8080/applicationPetstore](http://localhost:8080/applicationPetstore).
-
-The admin [REST interface](http://localhost:8080/applicationPetstore/swagger.json) allows you to create/update/remove items in the catalog, orders or customers. You can run the following [curl](http://curl.haxx.se/) commands :
-
-* `curl -X GET http://localhost:8080/applicationPetstore/rest/categories`
-* `curl -X GET http://localhost:8080/applicationPetstore/rest/products`
-* `curl -X GET http://localhost:8080/applicationPetstore/rest/items`
-* `curl -X GET http://localhost:8080/applicationPetstore/rest/countries`
-* `curl -X GET http://localhost:8080/applicationPetstore/rest/customers`
-
-You can also get a JSON representation as follow :
-
-* `curl -X GET -H "accept: application/json" http://localhost:8080/applicationPetstore/rest/items`
-
-Check the Swagger contract on : [http://localhost:8080/applicationPetstore/swagger.json]()
-
-## Databases
-
-The `persistence.xml` defines a persistence unit called `applicationPetstorePU` that uses the default JBoss database :
-
-```
-<jta-data-source>java:jboss/datasources/ExampleDS</jta-data-source>
-```
-
-### H2
+You will find here a full training workshop on migrating an existing Java EE application to Azure, 
+including guides and demos. You will migrate:
  
-By default, the application uses the in-memory H2 database. If you log into the WildFly [Admin Console](http://localhost:9990/), go to [http://localhost:9990/console/App.html#profile/datasources;name=ExampleDS]() and you will see the H2 Driver as well as the Connection URL pointing at the in-memory H2 database `jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE`
+- Java EE application to App Service Linux and 
+- Application's data to Azure Database for PostgreSQL, MySQL and or SQL Database. 
 
-### Postgresql
+## What you should expect
 
-If instead a H2 in-memory database you want to use PostgreSQL, you need to do the following steps.
+This is not the official documentation but an opinionated training.
 
-#### Install the PostgreSQL driver into Wildfly
+It is a hands-on training, and it will use the command line extensively. 
+The idea is to get coding very quickly and play with the platform, 
+from a simple demo to far more complex examples.
 
-This [good article](http://ralph.soika.com/wildfly-install-postgresql-jdbc-driver-as-a-module/) explains you how. 
+After completing all the guides, you should have a fairly good understanding of 
+everything that Azure offers for running Java EE applications on PaaS without worrying
+about the underlying infrastructure or monitoring applications.
 
-1) Go to `$WILDFLY_HOME/modules/system/layers/base/` and create the folder `org/postgresql/main`
-2) Copy the Postgresql [JDBC driver jar](https://jdbc.postgresql.org/download.html) file (eg. `postgresql-42.1.4.jar`) to the new folder `$WILDFLY_HOME/modules/system/layers/base/org/postgresql/main`
-3) Create the file `$WILDFLY_HOME/modules/system/layers/base/org/postgresql/main/module.xml` with the following content:
+You will migrate the famous [Sun's 2003 Java EE Blue Print](https://www.oracle.com/java/technologies/java-blueprint.html) 
+sample application. The most recent incarnation of the sample application uses:
 
-```
-<?xml version="1.0" encoding="UTF-8"?>
-<module xmlns="urn:jboss:module:1.1" name="org.postgresql">
-    <resources>
-        <resource-root path="postgresql-42.1.4.jar"/>
-    </resources>
-    <dependencies>
-        <module name="javax.api"/>
-        <module name="javax.transaction.api"/>
-    </dependencies>
-</module>
-```
+- Java SE 8
+- Java EE 7
+- JSR 338 Java Persistence API (JPA 2.2)
+- JSR 346 Context and Dependency Injection (CDI 1.1)
+- JSR 345 Enterprise Java Beans 3.2 (EJB 3.2)
+- JSR 344 Java Server Faces (JSF 2.2) 
+- JSR 339 Java API for RESTful Web Services (JAX-RS 2.0)
+- Twitter Bootstrap (Bootstrap 3.x, JQuery 2.x, PrimeFaces 6.x) 
 
-4) Reference the module as a driver in WildFly configuration
+Upon migration, you will power the app using 
+Azure Database for PostgreSQL, MySQL and or SQL Database.
 
-```
-WILDFLY_HOME/bin $ ./jboss-cli.sh
-You are disconnected at the moment. Type 'connect' to connect to the server or 'help' for the list of supported commands.
-[disconnected /] connect
-[standalone@localhost:9990 /] /subsystem=datasources/jdbc-driver=postgresql:add(driver-name=postgresql,driver-module-name=org.postgresql, driver-class-name=org.postgresql.Driver)
-{"outcome" => "success"}
-```
+## Symbols
 
-#### Modify the default Datasource
+>🛑 -  __Manual Modification Required__. When this symbol appears in front of one or 
+more commands, you will need to modify the commands as indicated prior to running them.
 
-In the Wildfly [Admin Console](http://localhost:9990) check the default datasource [ExampleDS](http://localhost:9990/console/App.html#profile/ds-finder/datasources;name=ExampleDS). As you can see, it points to an in-memory H2 database. Make the following changes so it points at Postgres:
+>🚧 - __Preview-specific__. This symbol indicates steps that are only necessary while 
+JBoss EAP on App Service is in preview.
 
-1) Attribute Tab: Change the driver to postgresql
-2) Connection Tab: Change the Connection URL to `jdbc:postgresql://localhost:5432/postgres`
-3) Security Tab: Change User name to `postgres` and no password
+>💡 - __Frustration Avoidance Tip__. These will help you avoid potential pitfalls.
 
-Once Postgres is up and running, you can hit the button `Test Connection`. It should be ok.
+## [00 - Prerequisites and Setup](step-00-setup-your-environment/README.md) (15 minutes)
 
-#### Startup PostgreSQL
-
-The easiest is to use the Docker file to start Postgres
-
-```
-$ docker-compose -f src/main/docker/postgresql.yml up -d
-```
-
-## Test this application on CloudBees
-
-<a href="https://grandcentral.cloudbees.com/?CB_clickstart=https://raw.github.com/cyrille-leclerc/agoncal-application-petstore-ee7/master/clickstart.json"><img src="https://d3ko533tu1ozfq.cloudfront.net/clickstart/deployInstantly.png"/></a>
-
-## Third Party Tools & Frameworks
-
-### Twitter Bootstrap
-
-When, like me, you have no web designer skills at all and your web pages look ugly, you use [Twitter Bootstrap](http://twitter.github.com/bootstrap/) ;o)
-
-## Icons
-
-I use:
+Prerequisites and environment setup.
  
-* [Font Awesome](http://fontawesome.io/)
-* [Silk Icons](http://www.famfamfam.com/lab/icons/silk/) which are in Creative Commons
+## [01 - Deploy a Java EE application to Azure](step-01-deploy-java-ee-app-to-azure/README.md) (15 minutes)
 
-### Arquillian
+Deploy a Java EE application to Azure.
 
-[Arquillian](http://arquillian.org/) for the integration tests.
+## [02 - Create a database](step-02-create-a-database/README.md) (10 minutes)
 
-## Developpers
+Create a database - PostgreSQL or MySQL or SQL Database.
 
-Some people who worked on this project :
+## [03 - Bind Java EE application to the database](step-03-bind-java-ee-app-to-database/README.md) (15 minutes)
 
-* [Antoine Sabot-Durand](https://twitter.com/#!/antoine_sd)
-* [Brice Leporini](https://twitter.com/#!/blep)
-* Hervé Le Morvan
+Bind the Java EE application to the database.
 
-## Bugs & Workaround
+## [04 - Monitor Java EE application](step-04-monitor-java-ee-app/README.md) (30 minutes)
 
+Configure and monitor Java EE application and its dependencies using Azure Monitor.
 
-## Licensing
+## [05 - Continuously Deploy using GitHub Actions](step-05-setup-github-actions/README.md) (15 minutes)
 
-<a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.
+Create a GitHub Actions workflow file to continuously deploy a Java EE application.
 
-<div class="footer">
-    <span class="footerTitle"><span class="uc">a</span>ntonio <span class="uc">g</span>oncalves</span>
-</div>
+## [Conclusion](step-99-conclusion/README.md) (5 minutes)
+
+---
+
+## Credits
+
+This Java EE Petstore sample is forked from 
+[agoncal/agoncal-application-petstore-ee7](https://github.com/agoncal/agoncal-application-petstore-ee7) - see [Petstore README](./README-petstoreee7.md). 
+
+> When you create something and give it away, you lose control of what you've created and then, anything can happen.
+> 
+> I created this Petstore application years ago to show how Java EE components would work all together. 
+> I used this application in many talks, workshops, demos... and then, time passed, I forgot about it and never updated it.
+> I've written this code when monoliths were a thing, when the cloud was just starting, and when the only CI/CD tool we had was called Hudson.
+> 
+> Today, thanks to the Azure team, my Petstore application is built with GitHub actions and deployed to the cloud.
+> Without changing the original code, and with only a few commands and some configuration, you can deploy the application to Azure.
+> What a journey!
+> 
+> Thank you,
+> 
+> [Antonio Goncalves](http://www.antoniogoncalves.org)
+
+## Contributing
+
+This project welcomes contributions and suggestions.  Most contributions require you to agree to a
+Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
+the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
+
+When you submit a pull request, a CLA bot will automatically determine whether you need to provide
+a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
+provided by the bot. You will only need to do this once across all repos using our CLA.
+
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
+For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
+contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
+---
